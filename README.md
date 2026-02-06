@@ -48,7 +48,7 @@ This application solves these issues by providing a structured digital platform.
 
 - **Programming Language:** C#
 - **Framework:** .NET 6 Windows Forms
-- **Database:** SQLite / SQL Server (Configurable)
+- **Database:** SQLite3
 - **IDE:** Visual Studio
 - **Architecture:** Layered Architecture
 - **Version Control:** Git & GitHub
@@ -113,5 +113,38 @@ This application solves these issues by providing a structured digital platform.
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
+
+```
+StudentInfoApp3
+│── Forms
+│── Models
+│── Data
+│── Services
+│── Utils
+│── Program.cs
+│── README.md
+```
+
+
+
+
+---
+
+##  How to Run the Project
+
+### Prerequisites
+
+- Visual Studio 2022 
+- .NET 6 SDK  
+- Git
+- powershell
+
+### Steps
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Abdurrahman-gurib/Student-Information-System.git
+
 
