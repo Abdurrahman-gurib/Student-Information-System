@@ -9,6 +9,29 @@ A desktop-based Student Information System developed using **C# (.NET Windows Fo
 The Student Information System (SIS) is designed to help universities and educational institutions manage academic data digitally.  
 It replaces manual record-keeping with a centralized software solution that improves efficiency, accuracy, and accessibility.
 
+### Login / Register
+- **Username:** admin  
+- **Password:** password123  
+
+![Login Page](https://github.com/user-attachments/assets/020770e0-889e-4c79-9138-7cc36de742ac)
+
+---
+
+### Dashboard
+The dashboard provides an overview of academic data, student details, and navigation for system management.
+
+![Dashboard](https://github.com/user-attachments/assets/c82cccef-5f89-44b4-8b48-f5ecdec97c65)
+
+---
+
+### Database
+The system uses **SQLite3** as the database to store student information, course details, and other academic records.
+
+![Database SQLite3](https://github.com/user-attachments/assets/2e7811cf-c92a-4536-90bf-5a37eeb50075)
+
+
+
+
 ---
 
 ##  Objectives
@@ -147,4 +170,12 @@ StudentInfoApp3
 ```bash
 git clone https://github.com/Abdurrahman-gurib/Student-Information-System.git
 
+```
 
+
+## Authors
+
+This project was developed by:
+
+- **Abdurrahman Noor-Ul-Haqq Gurib**  
+- **Moushaifah Amreen Beebee Nassmally**
