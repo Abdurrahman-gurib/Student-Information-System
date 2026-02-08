@@ -177,5 +177,6 @@ git clone https://github.com/Abdurrahman-gurib/Student-Information-System.git
 
 This project was developed by:
 
-- **Abdurrahman Noor-Ul-Haqq Gurib**  
+- **Abdurrahman Noor-Ul-Haqq Gurib**
+- **Beebee Amreen Moushaifah Nassmally**
 
