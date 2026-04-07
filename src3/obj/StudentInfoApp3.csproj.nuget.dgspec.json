@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\noorg\\OneDrive\\Desktop\\studentinformationsystem\\src3\\StudentInfoApp3.csproj": {}
+    "C:\\Users\\USER\\Desktop\\Github Stud\\Student-Information-System\\src3\\StudentInfoApp3.csproj": {}
   },
   "projects": {
-    "C:\\Users\\noorg\\OneDrive\\Desktop\\studentinformationsystem\\src3\\StudentInfoApp3.csproj": {
+    "C:\\Users\\USER\\Desktop\\Github Stud\\Student-Information-System\\src3\\StudentInfoApp3.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\noorg\\OneDrive\\Desktop\\studentinformationsystem\\src3\\StudentInfoApp3.csproj",
+        "projectUniqueName": "C:\\Users\\USER\\Desktop\\Github Stud\\Student-Information-System\\src3\\StudentInfoApp3.csproj",
         "projectName": "StudentInfoApp3",
-        "projectPath": "C:\\Users\\noorg\\OneDrive\\Desktop\\studentinformationsystem\\src3\\StudentInfoApp3.csproj",
-        "packagesPath": "C:\\Users\\noorg\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\noorg\\OneDrive\\Desktop\\studentinformationsystem\\src3\\obj\\",
+        "projectPath": "C:\\Users\\USER\\Desktop\\Github Stud\\Student-Information-System\\src3\\StudentInfoApp3.csproj",
+        "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\USER\\Desktop\\Github Stud\\Student-Information-System\\src3\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\noorg\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,7 +45,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net6.0-windows7.0": {
@@ -52,7 +53,13 @@
           "dependencies": {
             "Microsoft.Data.Sqlite": {
               "target": "Package",
-              "version": "[10.0.2, )"
+              "version": "[10.0.5, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.5, )"
             },
             "System.Data.SqlClient": {
               "target": "Package",
@@ -96,7 +103,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.303\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100-rc.2.25502.107\\RuntimeIdentifierGraph.json"
         }
       }
     }
