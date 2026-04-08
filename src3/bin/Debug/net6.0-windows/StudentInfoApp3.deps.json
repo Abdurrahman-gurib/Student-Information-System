@@ -9,6 +9,7 @@
       "StudentInfoApp3/1.0.0": {
         "dependencies": {
           "Microsoft.Data.Sqlite": "10.0.5",
+          "Microsoft.EntityFrameworkCore.Tools": "10.0.5",
           "System.Data.SqlClient": "4.9.0"
         },
         "runtime": {
@@ -33,6 +34,7 @@
           }
         }
       },
+      "Microsoft.EntityFrameworkCore.Tools/10.0.5": {},
       "runtime.native.System.Data.SqlClient.sni/4.4.0": {
         "dependencies": {
           "runtime.win-arm64.runtime.native.System.Data.SqlClient.sni": "4.4.0",
@@ -80,6 +82,9 @@
         }
       },
       "SQLitePCLRaw.core/2.1.11": {
+        "dependencies": {
+          "System.Memory": "4.5.3"
+        },
         "runtime": {
           "lib/netstandard2.0/SQLitePCLRaw.core.dll": {
             "assemblyVersion": "2.1.11.2622",
@@ -241,7 +246,8 @@
             "fileVersion": "4.900.24.56208"
           }
         }
-      }
+      },
+      "System.Memory/4.5.3": {}
     }
   },
   "libraries": {
@@ -263,6 +269,13 @@
       "sha512": "sha512-jFYXnh7s0RShCw6Vkf+ReGCw+mVi7ISg1YaEzYCJcXnUifmbW+aqvCsRJuSRj2ZuQ+oqetpjxlZtbpMmk5FKqQ==",
       "path": "microsoft.data.sqlite.core/10.0.5",
       "hashPath": "microsoft.data.sqlite.core.10.0.5.nupkg.sha512"
+    },
+    "Microsoft.EntityFrameworkCore.Tools/10.0.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-maSlvKez/gwy88zoLXCafRh0gEFmakM7fnf6zEi6nyItp7A1Negmp/YBodiuWcxLUguvVkPJZX15MnLeuJwjQA==",
+      "path": "microsoft.entityframeworkcore.tools/10.0.5",
+      "hashPath": "microsoft.entityframeworkcore.tools.10.0.5.nupkg.sha512"
     },
     "runtime.native.System.Data.SqlClient.sni/4.4.0": {
       "type": "package",
@@ -326,6 +339,13 @@
       "sha512": "sha512-j4KJO+vC62NyUtNHz854njEqXbT8OmAa5jb1nrGfYWBOcggyYUQE0w/snXeaCjdvkSKWuUD+hfvlbN8pTrJTXg==",
       "path": "system.data.sqlclient/4.9.0",
       "hashPath": "system.data.sqlclient.4.9.0.nupkg.sha512"
+    },
+    "System.Memory/4.5.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-3oDzvc/zzetpTKWMShs1AADwZjQ/36HnsufHRPcOjyRAAMLDlu2iD33MBI2opxnezcVUtXyqDXXjoFMOU9c7SA==",
+      "path": "system.memory/4.5.3",
+      "hashPath": "system.memory.4.5.3.nupkg.sha512"
     }
   }
 }
