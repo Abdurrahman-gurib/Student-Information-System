@@ -11,6 +11,8 @@ namespace StudentInfoApp3.Forms
         TextBox txtPass;
         Button btnLogin;
         Button btnRegister;
+        Button btnTogglePassword;
+        LinkLabel lnkForgetPassword;
 
         public LoginForm()
         {
@@ -94,7 +96,7 @@ namespace StudentInfoApp3.Forms
             txtPass = new TextBox
             {
                 Location = new Point(30, 245),
-                Width = 380,
+                Width = 340,
                 Height = 40,
                 Font = new Font("Segoe UI", 11),
                 UseSystemPasswordChar = true,
@@ -103,11 +105,41 @@ namespace StudentInfoApp3.Forms
             };
             mainPanel.Controls.Add(txtPass);
 
+            // Password toggle button (eye icon)
+            btnTogglePassword = new Button
+            {
+                Text = "👁",
+                Location = new Point(375, 245),
+                Width = 35,
+                Height = 40,
+                Font = new Font("Segoe UI", 12),
+                BackColor = Color.White,
+                ForeColor = Color.Gray,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            btnTogglePassword.FlatAppearance.BorderSize = 1;
+            btnTogglePassword.FlatAppearance.BorderColor = Color.LightGray;
+            mainPanel.Controls.Add(btnTogglePassword);
+
+            // Forget password link
+            lnkForgetPassword = new LinkLabel
+            {
+                Text = "Forgot Password?",
+                Location = new Point(30, 295),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10),
+                LinkColor = Color.FromArgb(33, 150, 243),
+                ActiveLinkColor = Color.FromArgb(17, 104, 210),
+                VisitedLinkColor = Color.FromArgb(33, 150, 243)
+            };
+            mainPanel.Controls.Add(lnkForgetPassword);
+
             // Sign In button
             btnLogin = new Button
             {
                 Text = "Sign In",
-                Location = new Point(30, 320),
+                Location = new Point(30, 340),
                 Width = 180,
                 Height = 50,
                 Font = new Font("Segoe UI", 12, FontStyle.Bold),
@@ -123,7 +155,7 @@ namespace StudentInfoApp3.Forms
             btnRegister = new Button
             {
                 Text = "Create Account",
-                Location = new Point(230, 320),
+                Location = new Point(230, 340),
                 Width = 180,
                 Height = 50,
                 Font = new Font("Segoe UI", 12, FontStyle.Bold),
@@ -140,6 +172,8 @@ namespace StudentInfoApp3.Forms
 
             btnLogin.Click += BtnLogin_Click;
             btnRegister.Click += BtnRegister_Click;
+            btnTogglePassword.Click += BtnTogglePassword_Click;
+            lnkForgetPassword.Click += LnkForgetPassword_Click;
         }
 
         private void BtnRegister_Click(object sender, EventArgs e)
@@ -170,6 +204,17 @@ namespace StudentInfoApp3.Forms
             }
             else
                 MessageBox.Show("Invalid credentials");
+        }
+
+        private void BtnTogglePassword_Click(object sender, EventArgs e)
+        {
+            txtPass.UseSystemPasswordChar = !txtPass.UseSystemPasswordChar;
+            btnTogglePassword.Text = txtPass.UseSystemPasswordChar ? "👁" : "🙈";
+        }
+
+        private void LnkForgetPassword_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Password reset functionality is not implemented yet. Please contact your administrator.", "Forgot Password", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
