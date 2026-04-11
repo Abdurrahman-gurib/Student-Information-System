@@ -81,6 +81,27 @@ namespace StudentInfoApp3.Data
                         FileSize INTEGER DEFAULT 0,
                         UploadDate DATETIME DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (StudentId) REFERENCES Students(StudentId) ON DELETE CASCADE
+                    );",
+
+                    // Sessions table
+                    @"CREATE TABLE IF NOT EXISTS Sessions (
+                        SessionId INTEGER PRIMARY KEY AUTOINCREMENT,
+                        UserId INTEGER,
+                        LoginTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        LogoutTime DATETIME,
+                        Duration INTEGER,
+                        FOREIGN KEY (UserId) REFERENCES Users(UserId)
+                    );",
+
+                    // Issues table
+                    @"CREATE TABLE IF NOT EXISTS Issues (
+                        IssueId INTEGER PRIMARY KEY AUTOINCREMENT,
+                        StudentId INTEGER NOT NULL,
+                        IssueType TEXT NOT NULL,
+                        Description TEXT,
+                        ReportedDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        Status TEXT DEFAULT 'Open',
+                        FOREIGN KEY (StudentId) REFERENCES Students(StudentId) ON DELETE CASCADE
                     );"
                 };
 
