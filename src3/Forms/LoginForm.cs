@@ -33,7 +33,8 @@ namespace StudentInfoApp3.Forms
                 BackColor = Color.White,
                 Location = new Point(30, 30),
                 Width = 440,
-                Height = 540
+                Height = 540,
+                Anchor = AnchorStyles.None
             };
 
             // Title
@@ -43,7 +44,8 @@ namespace StudentInfoApp3.Forms
                 Font = new Font("Segoe UI", 32, FontStyle.Bold),
                 ForeColor = Color.FromArgb(33, 150, 243),
                 Location = new Point(30, 30),
-                AutoSize = true
+                Size = new Size(350, 80),
+                TextAlign = ContentAlignment.MiddleLeft
             };
             mainPanel.Controls.Add(lblTitle);
 
@@ -51,9 +53,9 @@ namespace StudentInfoApp3.Forms
             Label lblSubtitle = new Label
             {
                 Text = "Sign in to your account",
-                Font = new Font("Segoe UI", 13),
+                Font = new Font("Segoe UI", 12),
                 ForeColor = Color.FromArgb(120, 120, 120),
-                Location = new Point(30, 75),
+                Location = new Point(30, 102),
                 AutoSize = true
             };
             mainPanel.Controls.Add(lblSubtitle);
@@ -92,25 +94,33 @@ namespace StudentInfoApp3.Forms
             };
             mainPanel.Controls.Add(lblPass);
 
-            // Password textbox
-            txtPass = new TextBox
+            // Password textbox with embedded eye icon inside the input panel
+            Panel passwordPanel = new Panel
             {
                 Location = new Point(30, 245),
-                Width = 340,
+                Width = 380,
                 Height = 40,
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+
+            txtPass = new TextBox
+            {
+                Location = new Point(8, 7),
+                Width = 320,
+                Height = 26,
                 Font = new Font("Segoe UI", 11),
                 UseSystemPasswordChar = true,
-                BorderStyle = BorderStyle.FixedSingle,
-                Text = ""
+                BorderStyle = BorderStyle.None,
+                PlaceholderText = "Password"
             };
-            mainPanel.Controls.Add(txtPass);
+            passwordPanel.Controls.Add(txtPass);
 
-            // Password toggle button (eye icon)
             btnTogglePassword = new Button
             {
                 Text = "👁",
-                Location = new Point(375, 245),
-                Width = 35,
+                Location = new Point(330, 0),
+                Width = 50,
                 Height = 40,
                 Font = new Font("Segoe UI", 12),
                 BackColor = Color.White,
@@ -118,9 +128,9 @@ namespace StudentInfoApp3.Forms
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
             };
-            btnTogglePassword.FlatAppearance.BorderSize = 1;
-            btnTogglePassword.FlatAppearance.BorderColor = Color.LightGray;
-            mainPanel.Controls.Add(btnTogglePassword);
+            btnTogglePassword.FlatAppearance.BorderSize = 0;
+            passwordPanel.Controls.Add(btnTogglePassword);
+            mainPanel.Controls.Add(passwordPanel);
 
             // Forget password link
             lnkForgetPassword = new LinkLabel
@@ -169,6 +179,13 @@ namespace StudentInfoApp3.Forms
 
             // Add main panel to form
             Controls.Add(mainPanel);
+            Resize += (s, e) =>
+            {
+                mainPanel.Left = (ClientSize.Width - mainPanel.Width) / 2;
+                mainPanel.Top = (ClientSize.Height - mainPanel.Height) / 2;
+            };
+            mainPanel.Left = (ClientSize.Width - mainPanel.Width) / 2;
+            mainPanel.Top = (ClientSize.Height - mainPanel.Height) / 2;
 
             btnLogin.Click += BtnLogin_Click;
             btnRegister.Click += BtnRegister_Click;
@@ -198,7 +215,7 @@ namespace StudentInfoApp3.Forms
             if (DataAccess.VerifyUser(u, p))
             {
                 Hide();
-                var dashboard = new DashboardForm();
+                var dashboard = new DashboardForm(u);
                 dashboard.FormClosed += (s, a) => Close();
                 dashboard.Show();
             }
@@ -214,7 +231,128 @@ namespace StudentInfoApp3.Forms
 
         private void LnkForgetPassword_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Password reset functionality is not implemented yet. Please contact your administrator.", "Forgot Password", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Form resetForm = new Form
+            {
+                Text = "Reset Password",
+                Width = 420,
+                Height = 360,
+                StartPosition = FormStartPosition.CenterParent,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MaximizeBox = false,
+                MinimizeBox = false
+            };
+
+            Label lblTitle = new Label
+            {
+                Text = "Reset Your Password",
+                Location = new Point(20, 20),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 14, FontStyle.Bold)
+            };
+            resetForm.Controls.Add(lblTitle);
+
+            Label lblUser = new Label
+            {
+                Text = "Username:",
+                Location = new Point(20, 60),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            resetForm.Controls.Add(lblUser);
+
+            TextBox txtUsername = new TextBox
+            {
+                Location = new Point(20, 90),
+                Width = 360,
+                Font = new Font("Segoe UI", 10)
+            };
+            resetForm.Controls.Add(txtUsername);
+
+            Label lblNewPass = new Label
+            {
+                Text = "New Password:",
+                Location = new Point(20, 130),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            resetForm.Controls.Add(lblNewPass);
+
+            TextBox txtNewPassword = new TextBox
+            {
+                Location = new Point(20, 160),
+                Width = 360,
+                PasswordChar = '*',
+                Font = new Font("Segoe UI", 10)
+            };
+            resetForm.Controls.Add(txtNewPassword);
+
+            Label lblConfirm = new Label
+            {
+                Text = "Confirm Password:",
+                Location = new Point(20, 200),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            resetForm.Controls.Add(lblConfirm);
+
+            TextBox txtConfirmPassword = new TextBox
+            {
+                Location = new Point(20, 230),
+                Width = 360,
+                PasswordChar = '*',
+                Font = new Font("Segoe UI", 10)
+            };
+            resetForm.Controls.Add(txtConfirmPassword);
+
+            Button btnReset = new Button
+            {
+                Text = "Reset Password",
+                Location = new Point(140, 270),
+                Width = 130,
+                Height = 34,
+                BackColor = Color.FromArgb(76, 175, 80),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            btnReset.FlatAppearance.BorderSize = 0;
+            btnReset.Click += (s, a) =>
+            {
+                string username = txtUsername.Text.Trim();
+                string newPassword = txtNewPassword.Text;
+                string confirmPassword = txtConfirmPassword.Text;
+
+                if (string.IsNullOrWhiteSpace(username))
+                {
+                    MessageBox.Show("Please enter your username.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+                {
+                    MessageBox.Show("New password must be at least 6 characters long.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (newPassword != confirmPassword)
+                {
+                    MessageBox.Show("Passwords do not match.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (DataAccess.ResetPassword(username, newPassword))
+                {
+                    MessageBox.Show("Password reset successfully! Please login with your new password.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    resetForm.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Username not found or reset failed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+            resetForm.Controls.Add(btnReset);
+
+            resetForm.ShowDialog();
         }
     }
 }

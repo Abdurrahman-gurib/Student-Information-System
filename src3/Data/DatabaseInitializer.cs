@@ -77,6 +77,8 @@ namespace StudentInfoApp3.Data
                         StudentId INTEGER NOT NULL,
                         DocumentType TEXT NOT NULL,
                         FileName TEXT NOT NULL,
+                        FilePath TEXT,
+                        FileSize INTEGER DEFAULT 0,
                         UploadDate DATETIME DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (StudentId) REFERENCES Students(StudentId) ON DELETE CASCADE
                     );"
@@ -88,6 +90,30 @@ namespace StudentInfoApp3.Data
                     {
                         cmd.CommandText = script;
                         cmd.ExecuteNonQuery();
+                    }
+                }
+
+                // Ensure new document columns exist for older databases
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "PRAGMA table_info(Documents);";
+                    using var rdr = cmd.ExecuteReader();
+                    var columns = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    while (rdr.Read())
+                        columns.Add(rdr.GetString(1));
+
+                    if (!columns.Contains("FilePath"))
+                    {
+                        using var alter = conn.CreateCommand();
+                        alter.CommandText = "ALTER TABLE Documents ADD COLUMN FilePath TEXT;";
+                        alter.ExecuteNonQuery();
+                    }
+
+                    if (!columns.Contains("FileSize"))
+                    {
+                        using var alter = conn.CreateCommand();
+                        alter.CommandText = "ALTER TABLE Documents ADD COLUMN FileSize INTEGER DEFAULT 0;";
+                        alter.ExecuteNonQuery();
                     }
                 }
 

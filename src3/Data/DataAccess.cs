@@ -44,6 +44,33 @@ namespace StudentInfoApp3.Data
             return obj.ToString() == Hash(password);
         }
 
+        public static bool ChangePassword(string username, string oldPassword, string newPassword)
+        {
+            if (!VerifyUser(username, oldPassword))
+                return false;
+
+            var hashed = Hash(newPassword);
+            using var conn = new SqliteConnection(ConnectionString);
+            conn.Open();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "UPDATE Users SET PasswordHash = @p WHERE Username = @u";
+            cmd.Parameters.AddWithValue("@p", hashed);
+            cmd.Parameters.AddWithValue("@u", username);
+            return cmd.ExecuteNonQuery() == 1;
+        }
+
+        public static bool ResetPassword(string username, string newPassword)
+        {
+            var hashed = Hash(newPassword);
+            using var conn = new SqliteConnection(ConnectionString);
+            conn.Open();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "UPDATE Users SET PasswordHash = @p WHERE Username = @u";
+            cmd.Parameters.AddWithValue("@p", hashed);
+            cmd.Parameters.AddWithValue("@u", username);
+            return cmd.ExecuteNonQuery() == 1;
+        }
+
         public static List<Student> GetStudents()
         {
             var list = new List<Student>();
@@ -278,7 +305,7 @@ namespace StudentInfoApp3.Data
             using var conn = new SqliteConnection(ConnectionString);
             conn.Open();
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT DocumentId, StudentId, DocumentType, FileName, UploadDate FROM Documents WHERE StudentId = @sid";
+            cmd.CommandText = "SELECT DocumentId, StudentId, DocumentType, FileName, FilePath, FileSize, UploadDate FROM Documents WHERE StudentId = @sid";
             cmd.Parameters.AddWithValue("@sid", studentId);
             using var rdr = cmd.ExecuteReader();
             while (rdr.Read())
@@ -288,7 +315,9 @@ namespace StudentInfoApp3.Data
                     StudentId = rdr.GetInt32(1),
                     DocumentType = rdr.GetString(2),
                     FileName = rdr.GetString(3),
-                    UploadDate = rdr.GetDateTime(4)
+                    FilePath = rdr.IsDBNull(4) ? string.Empty : rdr.GetString(4),
+                    FileSize = rdr.IsDBNull(5) ? 0 : rdr.GetInt64(5),
+                    UploadDate = rdr.GetDateTime(6)
                 });
             return list;
         }
@@ -298,10 +327,12 @@ namespace StudentInfoApp3.Data
             using var conn = new SqliteConnection(ConnectionString);
             conn.Open();
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "INSERT INTO Documents (StudentId, DocumentType, FileName) VALUES (@sid, @type, @file)";
+            cmd.CommandText = "INSERT INTO Documents (StudentId, DocumentType, FileName, FilePath, FileSize) VALUES (@sid, @type, @file, @path, @size)";
             cmd.Parameters.AddWithValue("@sid", d.StudentId);
             cmd.Parameters.AddWithValue("@type", d.DocumentType);
             cmd.Parameters.AddWithValue("@file", d.FileName);
+            cmd.Parameters.AddWithValue("@path", d.FilePath);
+            cmd.Parameters.AddWithValue("@size", d.FileSize);
             return cmd.ExecuteNonQuery() == 1;
         }
 

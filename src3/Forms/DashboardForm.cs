@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using StudentInfoApp3.Data;
@@ -16,6 +19,181 @@ namespace StudentInfoApp3.Forms
         private bool sidebarCollapsed;
         private Student currentStudent;
         private Action currentPageAction;
+        private string currentUsername;
+        private string currentTheme = "Light";
+        private string currentLanguage = "English";
+
+        private readonly Dictionary<string, Dictionary<string, string>> translations = new()
+        {
+            ["French"] = new Dictionary<string, string>
+            {
+                ["University of Mauritius - Campus Portal"] = "Université de Maurice - Portail du campus",
+                ["Logout"] = "Déconnexion",
+                ["Settings"] = "Paramètres",
+                ["Grades"] = "Notes",
+                ["Courses"] = "Cours",
+                ["Documents"] = "Documents",
+                ["Profile"] = "Profil",
+                ["Dashboard"] = "Tableau de bord",
+                ["Settings Preferences"] = "Préférences",
+                ["System Preferences"] = "Préférences système",
+                ["Theme:"] = "Thème :",
+                ["Language:"] = "Langue :",
+                ["Make profile visible to other students"] = "Rendre le profil visible aux autres étudiants",
+                ["Allow activity tracking for analytics"] = "Autoriser le suivi des activités pour l'analyse",
+                ["Change Password"] = "Changer le mot de passe",
+                ["Notification Preferences"] = "Préférences de notification",
+                ["Email notifications for important updates"] = "Notifications par email pour les mises à jour importantes",
+                ["Grade release notifications"] = "Notifications de publication des notes",
+                ["Course enrollment and schedule changes"] = "Inscriptions et modifications d'emploi du temps",
+                ["Document approval notifications"] = "Notifications d'approbation de document",
+                ["For your security, change your password every 3 months to avoid compromise."] = "Pour votre sécurité, changez votre mot de passe tous les 3 mois pour éviter toute compromission.",
+                ["Privacy & Security"] = "Confidentialité et sécurité",
+                ["Profile Settings"] = "Paramètres du profil",
+                ["Profile Picture:"] = "Photo de profil :",
+                ["Display Name:"] = "Nom affiché :",
+                ["Bio:"] = "Bio :",
+                ["Settings saved successfully!"] = "Paramètres enregistrés avec succès !",
+                ["Dashboard Overview"] = "Vue d'ensemble",
+                ["Welcome"] = "Bienvenue",
+                ["Overview"] = "Aperçu",
+                ["My Courses"] = "Mes cours",
+                ["Available Courses"] = "Cours disponibles",
+                ["Quick Actions"] = "Actions rapides",
+                ["Recent Activity"] = "Activité récente",
+                ["View Profile"] = "Voir le profil",
+                ["Browse Courses"] = "Parcourir les cours",
+                ["View Grades"] = "Voir les notes",
+                ["Upload Document"] = "Téléverser un document",
+                ["Actions"] = "Actions",
+                ["Reset"] = "Réinitialiser",
+                ["Personal Information"] = "Informations personnelles",
+                ["First Name:"] = "Prénom :",
+                ["Last Name:"] = "Nom :",
+                ["Email:"] = "Email :",
+                ["Phone:"] = "Téléphone :",
+                ["Address:"] = "Adresse :",
+                ["Student Profile"] = "Profil étudiant",
+                ["Profile Summary"] = "Résumé du profil",
+                ["Your Documents"] = "Vos documents",
+                ["Upload New Document"] = "Téléverser un nouveau document",
+                ["Document Type:"] = "Type de document :",
+                ["Selected File:"] = "Fichier sélectionné :",
+                ["Choose File"] = "Choisir un fichier",
+                ["Upload"] = "Téléverser",
+                ["No documents uploaded yet."] = "Aucun document téléversé pour le moment.",
+                ["Document Summary"] = "Résumé des documents",
+                ["Course Management"] = "Gestion des cours",
+                ["Document Management"] = "Gestion des documents",
+                ["Course Summary"] = "Résumé du cours",
+                ["Grades Academic Performance"] = "Performances académiques",
+                ["Grades Performance"] = "Performances des notes",
+                ["Grade History"] = "Historique des notes",
+                ["Filter Grades"] = "Filtrer les notes",
+                ["Semester:"] = "Semestre :",
+                ["All Semesters"] = "Tous les semestres",
+                ["Apply"] = "Appliquer",
+                ["Academic Overview"] = "Vue académique",
+                ["Overall GPA"] = "Moyenne générale",
+                ["Total Grades"] = "Total des notes",
+                ["Distribution"] = "Distribution",
+                ["Back"] = "Retour",
+                ["Filter Results"] = "Résultats du filtre",
+                ["Filtered Grade History"] = "Historique des notes filtrées",
+                ["Language changed to {0}. Application restart recommended for full effect."] = "Langue changée en {0}. Redémarrage de l'application recommandé pour plein effet.",
+                ["Language Changed"] = "Langue changée",
+                ["Please choose a file to upload."] = "Veuillez choisir un fichier à téléverser.",
+                ["Validation Error"] = "Erreur de validation",
+                ["Document uploaded successfully!"] = "Document téléversé avec succès !",
+                ["Success"] = "Succès",
+                ["Failed to upload document."] = "Échec du téléversement du document.",
+                ["Error"] = "Erreur"
+            },
+            ["Spanish"] = new Dictionary<string, string>
+            {
+                ["University of Mauritius - Campus Portal"] = "Universidad de Mauricio - Portal del Campus",
+                ["Logout"] = "Cerrar sesión",
+                ["Settings"] = "Configuración",
+                ["Grades"] = "Calificaciones",
+                ["Courses"] = "Cursos",
+                ["Documents"] = "Documentos",
+                ["Profile"] = "Perfil",
+                ["Dashboard"] = "Panel",
+                ["Settings Preferences"] = "Preferencias",
+                ["System Preferences"] = "Preferencias del sistema",
+                ["Theme:"] = "Tema:",
+                ["Language:"] = "Idioma:",
+                ["Make profile visible to other students"] = "Hacer el perfil visible para otros estudiantes",
+                ["Allow activity tracking for analytics"] = "Permitir seguimiento de actividad para análisis",
+                ["Change Password"] = "Cambiar contraseña",
+                ["Notification Preferences"] = "Preferencias de notificación",
+                ["Email notifications for important updates"] = "Notificaciones por correo para actualizaciones importantes",
+                ["Grade release notifications"] = "Notificaciones de publicación de calificaciones",
+                ["Course enrollment and schedule changes"] = "Inscripción en cursos y cambios de horario",
+                ["Document approval notifications"] = "Notificaciones de aprobación de documentos",
+                ["For your security, change your password every 3 months to avoid compromise."] = "Por su seguridad, cambie su contraseña cada 3 meses para evitar compromisos.",
+                ["Privacy & Security"] = "Privacidad y seguridad",
+                ["Profile Settings"] = "Configuración de perfil",
+                ["Profile Picture:"] = "Foto de perfil:",
+                ["Display Name:"] = "Nombre para mostrar:",
+                ["Bio:"] = "Biografía:",
+                ["Settings saved successfully!"] = "¡Configuración guardada con éxito!",
+                ["Dashboard Overview"] = "Resumen del panel",
+                ["Welcome"] = "Bienvenido",
+                ["Overview"] = "Resumen",
+                ["My Courses"] = "Mis cursos",
+                ["Available Courses"] = "Cursos disponibles",
+                ["Quick Actions"] = "Acciones rápidas",
+                ["Recent Activity"] = "Actividad reciente",
+                ["View Profile"] = "Ver perfil",
+                ["Browse Courses"] = "Ver cursos",
+                ["View Grades"] = "Ver calificaciones",
+                ["Upload Document"] = "Subir documento",
+                ["Actions"] = "Acciones",
+                ["Reset"] = "Restablecer",
+                ["Personal Information"] = "Información personal",
+                ["First Name:"] = "Nombre:",
+                ["Last Name:"] = "Apellido:",
+                ["Email:"] = "Correo electrónico:",
+                ["Phone:"] = "Teléfono:",
+                ["Address:"] = "Dirección:",
+                ["Student Profile"] = "Perfil del estudiante",
+                ["Profile Summary"] = "Resumen del perfil",
+                ["Your Documents"] = "Tus documentos",
+                ["Upload New Document"] = "Subir nuevo documento",
+                ["Document Type:"] = "Tipo de documento:",
+                ["Selected File:"] = "Archivo seleccionado:",
+                ["Choose File"] = "Elegir archivo",
+                ["Upload"] = "Subir",
+                ["No documents uploaded yet."] = "Aún no se han subido documentos.",
+                ["Document Summary"] = "Resumen de documentos",
+                ["Course Management"] = "Gestión de cursos",
+                ["Document Management"] = "Gestión de documentos",
+                ["Course Summary"] = "Resumen del curso",
+                ["Grades Academic Performance"] = "Rendimiento académico",
+                ["Grades Performance"] = "Rendimiento de calificaciones",
+                ["Grade History"] = "Historial de calificaciones",
+                ["Filter Grades"] = "Filtrar calificaciones",
+                ["Semester:"] = "Semestre:",
+                ["All Semesters"] = "Todos los semestres",
+                ["Apply"] = "Aplicar",
+                ["Academic Overview"] = "Resumen académico",
+                ["Overall GPA"] = "Promedio general",
+                ["Total Grades"] = "Total de calificaciones",
+                ["Distribution"] = "Distribución",
+                ["Back"] = "Atrás",
+                ["Filter Results"] = "Resultados del filtro",
+                ["Filtered Grade History"] = "Historial de calificaciones filtrado",
+                ["Language changed to {0}. Application restart recommended for full effect."] = "Idioma cambiado a {0}. Se recomienda reiniciar la aplicación para un efecto completo.",
+                ["Language Changed"] = "Idioma cambiado",
+                ["Please choose a file to upload."] = "Por favor selecciona un archivo para subir.",
+                ["Validation Error"] = "Error de validación",
+                ["Document uploaded successfully!"] = "¡Documento subido con éxito!",
+                ["Success"] = "Éxito",
+                ["Failed to upload document."] = "Error al subir el documento.",
+                ["Error"] = "Error"
+            }
+        };
 
         private const int SidebarExpandedWidth = 245;
         private const int SidebarCollapsedWidth = 70;
@@ -23,8 +201,9 @@ namespace StudentInfoApp3.Forms
         private const int PageMargin = 24;
         private const int SectionSpacing = 18;
 
-        public DashboardForm()
+        public DashboardForm(string username = "")
         {
+            currentUsername = username;
             currentStudent = DataAccess.GetStudents().FirstOrDefault();
             if (currentStudent == null)
             {
@@ -42,7 +221,7 @@ namespace StudentInfoApp3.Forms
 
         private void InitializeForm()
         {
-            Text = "University of Mauritius - Campus Portal";
+            Text = T("University of Mauritius - Campus Portal");
             Width = 1650;
             Height = 950;
             StartPosition = FormStartPosition.CenterScreen;
@@ -83,13 +262,13 @@ namespace StudentInfoApp3.Forms
             };
             logoPanel.Controls.Add(logo);
 
-            AddNavButton(navPanel, "🚪 Logout", Logout);
-            AddNavButton(navPanel, "⚙️ Settings", ShowSettings);
-            AddNavButton(navPanel, "📊 Grades", ShowGrades);
-            AddNavButton(navPanel, "📚 Courses", ShowCourses);
-            AddNavButton(navPanel, "📄 Documents", ShowDocuments);
-            AddNavButton(navPanel, "👤 Profile", ShowProfile);
-            AddNavButton(navPanel, "🏠 Dashboard", ShowDashboard, true);
+            AddNavButton(navPanel, "🚪", "Logout", Logout);
+            AddNavButton(navPanel, "⚙️", "Settings", ShowSettings);
+            AddNavButton(navPanel, "📊", "Grades", ShowGrades);
+            AddNavButton(navPanel, "📚", "Courses", ShowCourses);
+            AddNavButton(navPanel, "📄", "Documents", ShowDocuments);
+            AddNavButton(navPanel, "👤", "Profile", ShowProfile);
+            AddNavButton(navPanel, "🏠", "Dashboard", ShowDashboard, true);
 
             sidebar.Controls.Add(navPanel);
             sidebar.Controls.Add(logoPanel);
@@ -123,7 +302,7 @@ namespace StudentInfoApp3.Forms
 
             lblHeaderTitle = new Label
             {
-                Text = "Dashboard",
+                Text = T("Dashboard"),
                 Font = new Font("Segoe UI", 18, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize = true,
@@ -148,12 +327,13 @@ namespace StudentInfoApp3.Forms
             Controls.Add(sidebar);
         }
 
-        private void AddNavButton(Control parent, string text, Action action, bool active = false)
+        private void AddNavButton(Control parent, string icon, string key, Action action, bool active = false)
         {
+            var navItem = new NavItem { Icon = icon, Key = key };
             Button btn = new Button
             {
-                Text = text,
-                Tag = text,
+                Text = sidebarCollapsed ? icon : $"{icon} {T(key)}",
+                Tag = navItem,
                 Dock = DockStyle.Top,
                 Height = 46,
                 BackColor = active ? Color.FromArgb(28, 108, 208) : Color.FromArgb(36, 67, 133),
@@ -180,11 +360,50 @@ namespace StudentInfoApp3.Forms
             HighlightNavRecursive(sidebar, activeButton);
         }
 
+        private void UpdateNavigationLabels()
+        {
+            UpdateNavigationLabelsRecursive(sidebar);
+        }
+
+        private void UpdateNavigationLabelsRecursive(Control parent)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                if (control is Button btn && btn.Tag is NavItem navInfo)
+                {
+                    btn.Text = sidebarCollapsed ? navInfo.Icon : $"{navInfo.Icon} {T(navInfo.Key)}";
+                }
+
+                if (control.HasChildren)
+                    UpdateNavigationLabelsRecursive(control);
+            }
+        }
+
+        private string T(string key, params object[] args)
+            => string.Format(T(key), args);
+
+        private string T(string key)
+        {
+            if (currentLanguage == "English")
+                return key;
+
+            if (translations.TryGetValue(currentLanguage, out var languageMap) && languageMap.TryGetValue(key, out var translation))
+                return translation;
+
+            return key;
+        }
+
+        private class NavItem
+        {
+            public string Icon { get; set; }
+            public string Key { get; set; }
+        }
+
         private void HighlightNavRecursive(Control parent, Button activeButton)
         {
             foreach (Control c in parent.Controls)
             {
-                if (c is Button b && b.Tag is string)
+                if (c is Button b && b.Tag is NavItem)
                 {
                     b.BackColor = b == activeButton
                         ? Color.FromArgb(28, 108, 208)
@@ -208,10 +427,9 @@ namespace StudentInfoApp3.Forms
         {
             foreach (Control control in parent.Controls)
             {
-                if (control is Button btn && btn.Tag is string fullText)
+                if (control is Button btn && btn.Tag is NavItem navInfo)
                 {
-                    string iconOnly = fullText.Split(' ')[0];
-                    btn.Text = sidebarCollapsed ? iconOnly : fullText;
+                    btn.Text = sidebarCollapsed ? navInfo.Icon : $"{navInfo.Icon} {T(navInfo.Key)}";
                     btn.TextAlign = sidebarCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;
                     btn.Padding = sidebarCollapsed ? new Padding(0) : new Padding(12, 0, 0, 0);
                 }
@@ -564,7 +782,7 @@ namespace StudentInfoApp3.Forms
             Panel card = new Panel
             {
                 Width = 285,
-                Height = 165,
+                Height = 190,
                 Margin = new Padding(0, 0, 16, 16),
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle
@@ -605,28 +823,66 @@ namespace StudentInfoApp3.Forms
                 ForeColor = Color.FromArgb(110, 110, 110)
             };
 
-            Label lblDate = new Label
+            Label lblSize = new Label
             {
-                Text = $"📅 {doc.UploadDate:dd/MM/yyyy}",
-                Location = new Point(70, 84),
+                Text = FormatFileSize(doc.FileSize),
+                Location = new Point(70, 102),
                 AutoSize = true,
                 Font = new Font("Segoe UI", 9),
                 ForeColor = Color.FromArgb(140, 140, 140)
             };
 
-            Button btnView = CreateSmallButton("View", 14, 118, 70, Color.FromArgb(33, 150, 243));
-            btnView.Click += (s, e) => MessageBox.Show($"Viewing: {doc.FileName}");
+            Label lblDate = new Label
+            {
+                Text = $"📅 {doc.UploadDate:dd/MM/yyyy HH:mm}",
+                Location = new Point(70, 112),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9),
+                ForeColor = Color.FromArgb(140, 140, 140)
+            };
 
-            Button btnDownload = CreateSmallButton("Download", 92, 118, 84, Color.FromArgb(76, 175, 80));
-            btnDownload.Click += (s, e) => MessageBox.Show($"Downloading: {doc.FileName}");
+            Button btnView = CreateSmallButton("View", 14, 150, 70, Color.FromArgb(33, 150, 243));
+            btnView.Click += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(doc.FilePath) || !File.Exists(doc.FilePath))
+                {
+                    MessageBox.Show("The document file is not available.", "File Missing", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                Process.Start(new ProcessStartInfo(doc.FilePath) { UseShellExecute = true });
+            };
 
-            Button btnDelete = CreateSmallButton("Delete", 184, 118, 70, Color.FromArgb(244, 67, 54));
+            Button btnDownload = CreateSmallButton("Download", 92, 150, 84, Color.FromArgb(76, 175, 80));
+            btnDownload.Click += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(doc.FilePath) || !File.Exists(doc.FilePath))
+                {
+                    MessageBox.Show("The document file is not available to download.", "File Missing", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                using var sfd = new SaveFileDialog
+                {
+                    FileName = doc.FileName,
+                    Filter = "All files (*.*)|*.*"
+                };
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    File.Copy(doc.FilePath, sfd.FileName, true);
+                    MessageBox.Show("Document downloaded successfully.", "Download", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            };
+
+            Button btnDelete = CreateSmallButton("Delete", 184, 150, 70, Color.FromArgb(244, 67, 54));
             btnDelete.Click += (s, e) =>
             {
                 if (MessageBox.Show($"Delete {doc.FileName}?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     if (DataAccess.DeleteDocument(doc.DocumentId))
+                    {
+                        if (!string.IsNullOrWhiteSpace(doc.FilePath) && File.Exists(doc.FilePath))
+                            File.Delete(doc.FilePath);
                         SetCurrentPage(ShowDocuments);
+                    }
                 }
             };
 
@@ -634,11 +890,21 @@ namespace StudentInfoApp3.Forms
             card.Controls.Add(btnDownload);
             card.Controls.Add(btnView);
             card.Controls.Add(lblDate);
+            card.Controls.Add(lblSize);
             card.Controls.Add(lblFile);
             card.Controls.Add(lblType);
             card.Controls.Add(lblIcon);
 
             return card;
+        }
+
+        private string FormatFileSize(long sizeInBytes)
+        {
+            if (sizeInBytes >= 1_000_000)
+                return $"{sizeInBytes / 1_000_000.0:F1} MB";
+            if (sizeInBytes >= 1_000)
+                return $"{sizeInBytes / 1_000.0:F1} KB";
+            return $"{sizeInBytes} bytes";
         }
 
         private Panel CreateGradeCard(Grade grade)
@@ -741,8 +1007,8 @@ namespace StudentInfoApp3.Forms
 
         private void ShowDashboard()
         {
-            lblHeaderTitle.Text = "Dashboard";
-            FlowLayoutPanel page = CreatePage("Dashboard Overview");
+            lblHeaderTitle.Text = T("Dashboard");
+            FlowLayoutPanel page = CreatePage(T("Dashboard Overview"));
 
             var enrolledCourses = DataAccess.GetEnrolledCourses(currentStudent.StudentId);
             var allCourses = DataAccess.GetCourses();
@@ -772,24 +1038,24 @@ namespace StudentInfoApp3.Forms
             statsFlow.Controls.Add(CreateStatCard("📄 Documents", $"{documents.Count}", "Uploaded files", Color.FromArgb(255, 152, 0)));
             statsFlow.Controls.Add(CreateStatCard("🎯 Credits", $"{totalCredits}", "Credits this semester", Color.FromArgb(156, 39, 176)));
 
-            Panel enrolledBody = AddSection(page, "My Courses", 525);
+            Panel enrolledBody = AddSection(page, T("My Courses"), 525);
             FlowLayoutPanel enrolledFlow = CreateWrapFlow(enrolledBody);
             foreach (var course in enrolledCourses)
                 enrolledFlow.Controls.Add(CreateCourseCard(course, true));
 
-            Panel availableBody = AddSection(page, "Available Courses", 340);
+            Panel availableBody = AddSection(page, T("Available Courses"), 340);
             FlowLayoutPanel availableFlow = CreateWrapFlow(availableBody);
             foreach (var course in availableCourses)
                 availableFlow.Controls.Add(CreateCourseCard(course, false));
 
-            Panel quickBody = AddSection(page, "Quick Actions", 140);
+            Panel quickBody = AddSection(page, T("Quick Actions"), 140);
             FlowLayoutPanel quickFlow = CreateWrapFlow(quickBody);
-            quickFlow.Controls.Add(CreatePrimaryButton("View Profile", ShowProfile));
-            quickFlow.Controls.Add(CreatePrimaryButton("Browse Courses", ShowCourses));
-            quickFlow.Controls.Add(CreatePrimaryButton("View Grades", ShowGrades));
-            quickFlow.Controls.Add(CreatePrimaryButton("Upload Document", ShowDocuments));
+            quickFlow.Controls.Add(CreatePrimaryButton(T("View Profile"), ShowProfile));
+            quickFlow.Controls.Add(CreatePrimaryButton(T("Browse Courses"), ShowCourses));
+            quickFlow.Controls.Add(CreatePrimaryButton(T("View Grades"), ShowGrades));
+            quickFlow.Controls.Add(CreatePrimaryButton(T("Upload Document"), ShowDocuments));
 
-            Panel activityBody = AddSection(page, "Recent Activity", 200);
+            Panel activityBody = AddSection(page, T("Recent Activity"), 200);
             TableLayoutPanel activityTable = new TableLayoutPanel
             {
                 Dock = DockStyle.Top,
@@ -830,12 +1096,12 @@ namespace StudentInfoApp3.Forms
 
         private void ShowProfile()
         {
-            lblHeaderTitle.Text = "Student Profile";
-            FlowLayoutPanel page = CreatePage("Student Profile");
+            lblHeaderTitle.Text = T("Student Profile");
+            FlowLayoutPanel page = CreatePage(T("Student Profile"));
 
-            Panel actionBody = AddSection(page, "Actions", 150);
+            Panel actionBody = AddSection(page, T("Actions"), 150);
             FlowLayoutPanel actionFlow = CreateWrapFlow(actionBody);
-            actionFlow.Controls.Add(CreatePrimaryButton("Save Changes", () =>
+            actionFlow.Controls.Add(CreatePrimaryButton(T("Save Changes"), () =>
             {
                 if (DataAccess.UpdateStudent(currentStudent))
                 {
@@ -850,7 +1116,7 @@ namespace StudentInfoApp3.Forms
 
             Button btnReset = new Button
             {
-                Text = "Reset",
+                Text = T("Reset"),
                 Width = 120,
                 Height = 38,
                 Margin = new Padding(0, 0, 12, 12),
@@ -864,14 +1130,14 @@ namespace StudentInfoApp3.Forms
             btnReset.Click += (s, e) => SetCurrentPage(ShowProfile);
             actionFlow.Controls.Add(btnReset);
 
-            Panel infoBody = AddSection(page, "Personal Information", 340);
+            Panel infoBody = AddSection(page, T("Personal Information"), 340);
             TableLayoutPanel form = CreateFormTable(infoBody, 28, 72);
 
-            AddFormRow(form, "First Name:", CreateBoundTextBox(currentStudent.FirstName, v => currentStudent.FirstName = v));
-            AddFormRow(form, "Last Name:", CreateBoundTextBox(currentStudent.LastName, v => currentStudent.LastName = v));
-            AddFormRow(form, "Email:", CreateBoundTextBox(currentStudent.Email, v => currentStudent.Email = v));
-            AddFormRow(form, "Phone:", CreateBoundTextBox(currentStudent.Phone, v => currentStudent.Phone = v));
-            AddFormRow(form, "Address:", CreateBoundTextBox(currentStudent.Address, v => currentStudent.Address = v));
+            AddFormRow(form, T("First Name:"), CreateBoundTextBox(currentStudent.FirstName, v => currentStudent.FirstName = v));
+            AddFormRow(form, T("Last Name:"), CreateBoundTextBox(currentStudent.LastName, v => currentStudent.LastName = v));
+            AddFormRow(form, T("Email:"), CreateBoundTextBox(currentStudent.Email, v => currentStudent.Email = v));
+            AddFormRow(form, T("Phone:"), CreateBoundTextBox(currentStudent.Phone, v => currentStudent.Phone = v));
+            AddFormRow(form, T("Address:"), CreateBoundTextBox(currentStudent.Address, v => currentStudent.Address = v));
 
             DateTimePicker dtpDob = new DateTimePicker
             {
@@ -882,7 +1148,7 @@ namespace StudentInfoApp3.Forms
             dtpDob.ValueChanged += (s, e) => currentStudent.DateOfBirth = dtpDob.Value;
             AddFormRow(form, "Date of Birth:", dtpDob);
 
-            Panel summaryBody = AddSection(page, "Profile Summary", 230);
+            Panel summaryBody = AddSection(page, T("Profile Summary"), 230);
 
             Panel summary = new Panel
             {
@@ -918,7 +1184,7 @@ namespace StudentInfoApp3.Forms
             summary.Controls.Add(new Label
             {
                 Text = $"Student ID: {currentStudent.StudentId:D4}    Email: {currentStudent.Email}",
-                Location = new Point(105, 48),
+                Location = new Point(125, 60),
                 AutoSize = true,
                 Font = new Font("Segoe UI", 11),
                 ForeColor = Color.FromArgb(95, 95, 95)
@@ -929,32 +1195,39 @@ namespace StudentInfoApp3.Forms
 
         private void ShowDocuments()
         {
-            lblHeaderTitle.Text = "Document Management";
-            FlowLayoutPanel page = CreatePage("Document Management");
+            lblHeaderTitle.Text = T("Document Management");
+            FlowLayoutPanel page = CreatePage(T("Document Management"));
 
             var docs = DataAccess.GetStudentDocuments(currentStudent.StudentId);
 
-            Panel docsBody = AddSection(page, "Your Documents", 260);
+            Panel docsBody = AddSection(page, T("Your Documents"), 320);
+            docsBody.AutoScroll = true;
             FlowLayoutPanel docsFlow = CreateWrapFlow(docsBody);
+            docsFlow.AutoScroll = true;
+            docsFlow.FlowDirection = FlowDirection.LeftToRight;
+            docsFlow.WrapContents = true;
+            docsFlow.Padding = new Padding(4);
             foreach (var doc in docs.OrderByDescending(d => d.UploadDate))
                 docsFlow.Controls.Add(CreateDocumentCard(doc));
 
-            Panel uploadBody = AddSection(page, "Upload New Document", 250);
+            Panel uploadBody = AddSection(page, T("Upload New Document"), 300);
             TableLayoutPanel uploadTable = new TableLayoutPanel
             {
                 Dock = DockStyle.Top,
                 ColumnCount = 4,
+                RowCount = 1,
                 AutoSize = true
             };
             uploadTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 18));
             uploadTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32));
             uploadTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 18));
             uploadTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32));
+            uploadTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             uploadBody.Controls.Add(uploadTable);
 
             uploadTable.Controls.Add(new Label
             {
-                Text = "Document Type:",
+                Text = T("Document Type:"),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 Anchor = AnchorStyles.Left,
                 AutoSize = true
@@ -972,18 +1245,20 @@ namespace StudentInfoApp3.Forms
 
             uploadTable.Controls.Add(new Label
             {
-                Text = "File Name:",
+                Text = T("Selected File:"),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 Anchor = AnchorStyles.Left,
                 AutoSize = true
             }, 2, 0);
 
-            TextBox txtFileName = new TextBox
+            TextBox txtSelectedFile = new TextBox
             {
                 Font = new Font("Segoe UI", 10),
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                ReadOnly = true,
+                BackColor = Color.White
             };
-            uploadTable.Controls.Add(txtFileName, 3, 0);
+            uploadTable.Controls.Add(txtSelectedFile, 3, 0);
 
             FlowLayoutPanel buttonRow = new FlowLayoutPanel
             {
@@ -994,19 +1269,38 @@ namespace StudentInfoApp3.Forms
                 Padding = new Padding(0, 12, 0, 0)
             };
 
-            buttonRow.Controls.Add(CreatePrimaryButton("Upload", () =>
+            buttonRow.Controls.Add(CreatePrimaryButton(T("Choose File"), () =>
             {
-                if (string.IsNullOrWhiteSpace(txtFileName.Text))
+                using var ofd = new OpenFileDialog
                 {
-                    MessageBox.Show("Please enter a file name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Filter = "All files (*.*)|*.*",
+                    Title = "Select document to upload"
+                };
+                if (ofd.ShowDialog() == DialogResult.OK)
+                    txtSelectedFile.Text = ofd.FileName;
+            }));
+
+            buttonRow.Controls.Add(CreatePrimaryButton(T("Upload"), () =>
+            {
+                if (string.IsNullOrWhiteSpace(txtSelectedFile.Text) || !File.Exists(txtSelectedFile.Text))
+                {
+                    MessageBox.Show("Please choose a file to upload.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
+
+                string storageFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StudentInfoApp3", "Documents");
+                Directory.CreateDirectory(storageFolder);
+                string destinationPath = Path.Combine(storageFolder, $"{Guid.NewGuid()}{Path.GetExtension(txtSelectedFile.Text)}");
+
+                File.Copy(txtSelectedFile.Text, destinationPath, true);
 
                 var doc = new Document
                 {
                     StudentId = currentStudent.StudentId,
                     DocumentType = cbType.Text,
-                    FileName = txtFileName.Text.Trim()
+                    FileName = Path.GetFileName(txtSelectedFile.Text),
+                    FilePath = destinationPath,
+                    FileSize = new FileInfo(destinationPath).Length
                 };
 
                 if (DataAccess.AddDocument(doc))
@@ -1022,19 +1316,81 @@ namespace StudentInfoApp3.Forms
 
             uploadBody.Controls.Add(buttonRow);
 
-            Panel summaryBody = AddSection(page, "Document Summary", 180);
-            summaryBody.Controls.Add(new Label
+            Panel summaryBody = AddSection(page, T("Document Summary"), 300);
+            TableLayoutPanel summaryTable = new TableLayoutPanel
             {
-                Dock = DockStyle.Fill,
-                Text = $"Total Documents: {docs.Count} | Types: {docs.Select(d => d.DocumentType).Distinct().Count()}",
-                Font = new Font("Segoe UI", 12, FontStyle.Bold)
-            });
+                Dock = DockStyle.Top,
+                ColumnCount = 4,
+                RowCount = 1,
+                AutoSize = true,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.Single
+            };
+            summaryTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40));
+            summaryTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));
+            summaryTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));
+            summaryTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));
+            summaryTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            void AddSummaryCell(string text, Font font, int column, int row, ContentAlignment align = ContentAlignment.MiddleLeft)
+            {
+                var label = new Label
+                {
+                    Text = text,
+                    Font = font,
+                    AutoSize = true,
+                    Dock = DockStyle.Fill,
+                    TextAlign = align,
+                    Margin = new Padding(6)
+                };
+                summaryTable.Controls.Add(label, column, row);
+            }
+
+            AddSummaryCell("File Name", new Font("Segoe UI", 10, FontStyle.Bold), 0, 0);
+            AddSummaryCell("Type", new Font("Segoe UI", 10, FontStyle.Bold), 1, 0);
+            AddSummaryCell("Size", new Font("Segoe UI", 10, FontStyle.Bold), 2, 0);
+            AddSummaryCell("Uploaded", new Font("Segoe UI", 10, FontStyle.Bold), 3, 0);
+
+            if (docs.Any())
+            {
+                int row = 1;
+                foreach (var doc in docs.OrderByDescending(d => d.UploadDate))
+                {
+                    summaryTable.RowCount++;
+                    summaryTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    AddSummaryCell(doc.FileName, new Font("Segoe UI", 10), 0, row);
+                    AddSummaryCell(doc.DocumentType, new Font("Segoe UI", 10), 1, row);
+                    AddSummaryCell(FormatFileSize(doc.FileSize), new Font("Segoe UI", 10), 2, row);
+                    AddSummaryCell(doc.UploadDate.ToString("dd/MM/yyyy HH:mm"), new Font("Segoe UI", 10), 3, row);
+                    row++;
+                }
+            }
+            else
+            {
+                summaryTable.Controls.Clear();
+                summaryTable.ColumnCount = 1;
+                summaryTable.RowCount = 1;
+                summaryTable.ColumnStyles.Clear();
+                summaryTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+                summaryTable.RowStyles.Clear();
+                summaryTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                summaryTable.Controls.Add(new Label
+                {
+                    Text = "No documents uploaded yet.",
+                    Font = new Font("Segoe UI", 10),
+                    AutoSize = true,
+                    Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    Margin = new Padding(6)
+                }, 0, 0);
+            }
+
+            summaryBody.Controls.Add(summaryTable);
         }
 
         private void ShowCourses()
         {
-            lblHeaderTitle.Text = "Course Management";
-            FlowLayoutPanel page = CreatePage("Course Management");
+            lblHeaderTitle.Text = T("Course Management");
+            FlowLayoutPanel page = CreatePage(T("Course Management"));
 
             var enrolledCourses = DataAccess.GetEnrolledCourses(currentStudent.StudentId);
             var totalCredits = enrolledCourses.Sum(c => c.Credits);
@@ -1042,17 +1398,17 @@ namespace StudentInfoApp3.Forms
             var enrolledIds = enrolledCourses.Select(c => c.CourseId).ToHashSet();
             var availableCourses = allCourses.Where(c => !enrolledIds.Contains(c.CourseId)).ToList();
 
-            Panel enrolledBody = AddSection(page, "My Courses", 280);
+            Panel enrolledBody = AddSection(page, T("My Courses"), 280);
             FlowLayoutPanel enrolledFlow = CreateWrapFlow(enrolledBody);
             foreach (var course in enrolledCourses)
                 enrolledFlow.Controls.Add(CreateCourseCard(course, true));
 
-            Panel availableBody = AddSection(page, "Available Courses", 280);
+            Panel availableBody = AddSection(page, T("Available Courses"), 280);
             FlowLayoutPanel availableFlow = CreateWrapFlow(availableBody);
             foreach (var course in availableCourses)
                 availableFlow.Controls.Add(CreateCourseCard(course, false));
 
-            Panel summaryBody = AddSection(page, "Course Summary", 160);
+            Panel summaryBody = AddSection(page, T("Course Summary"), 160);
             summaryBody.Controls.Add(new Label
             {
                 Dock = DockStyle.Fill,
@@ -1063,8 +1419,8 @@ namespace StudentInfoApp3.Forms
 
         private void ShowGrades()
         {
-            lblHeaderTitle.Text = "Grades Academic Performance";
-            FlowLayoutPanel page = CreatePage("Grades Performance");
+            lblHeaderTitle.Text = T("Grades Academic Performance");
+            FlowLayoutPanel page = CreatePage(T("Grades Performance"));
 
             var grades = DataAccess.GetStudentGrades(currentStudent.StudentId);
             double gpa = grades.Any() ? grades.Average(g => GradeToPoint(g.GradeValue)) : 0.0;
@@ -1073,12 +1429,12 @@ namespace StudentInfoApp3.Forms
                                     .OrderBy(x => x)
                                     .ToList();
 
-            Panel gradesBody = AddSection(page, "Grade History", 250);
+            Panel gradesBody = AddSection(page, T("Grade History"), 250);
             FlowLayoutPanel gradesFlow = CreateWrapFlow(gradesBody);
             foreach (var grade in grades.OrderByDescending(g => g.Year).ThenByDescending(g => g.Semester))
                 gradesFlow.Controls.Add(CreateGradeCard(grade));
 
-            Panel filterBody = AddSection(page, "Filter Grades", 185);
+            Panel filterBody = AddSection(page, T("Filter Grades"), 185);
             TableLayoutPanel filterTable = new TableLayoutPanel
             {
                 Dock = DockStyle.Top,
@@ -1092,7 +1448,7 @@ namespace StudentInfoApp3.Forms
 
             filterTable.Controls.Add(new Label
             {
-                Text = "Semester:",
+                Text = T("Semester:"),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 AutoSize = true,
                 Anchor = AnchorStyles.Left
@@ -1104,15 +1460,15 @@ namespace StudentInfoApp3.Forms
                 Dock = DockStyle.Fill,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            cbSemester.Items.Add("All Semesters");
+            cbSemester.Items.Add(T("All Semesters"));
             foreach (var semester in grades.Select(g => $"{g.Semester} {g.Year}").Distinct())
                 cbSemester.Items.Add(semester);
             cbSemester.SelectedIndex = 0;
             filterTable.Controls.Add(cbSemester, 1, 0);
 
-            Button btnApply = CreatePrimaryButton("Apply", () =>
+            Button btnApply = CreatePrimaryButton(T("Apply"), () =>
             {
-                if (cbSemester.Text == "All Semesters")
+                if (cbSemester.Text == T("All Semesters"))
                 {
                     SetCurrentPage(ShowGrades);
                     return;
@@ -1123,7 +1479,7 @@ namespace StudentInfoApp3.Forms
             btnApply.Width = 110;
             filterTable.Controls.Add(btnApply, 2, 0);
 
-            Panel overviewBody = AddSection(page, "Academic Overview", 255);
+            Panel overviewBody = AddSection(page, T("Academic Overview"), 255);
             FlowLayoutPanel overviewFlow = CreateWrapFlow(overviewBody);
             overviewFlow.Controls.Add(CreateStatCard("Overall GPA", $"{gpa:F2}", "Current academic standing", GetGpaColor(gpa)));
             overviewFlow.Controls.Add(CreateStatCard("Total Grades", $"{grades.Count}", "Recorded results", Color.FromArgb(33, 150, 243)));
@@ -1132,14 +1488,28 @@ namespace StudentInfoApp3.Forms
 
         private void ShowGradesFiltered(string semesterText)
         {
-            lblHeaderTitle.Text = "Grades Academic Performance";
-            FlowLayoutPanel page = CreatePage($"Grades - {semesterText}");
+            lblHeaderTitle.Text = T("Grades Academic Performance");
+            FlowLayoutPanel page = CreatePage(T("Grades Performance") + $" - {semesterText}");
+
+            Panel actionBody = AddSection(page, T("Filter Results"), 140);
+            FlowLayoutPanel actionFlow = CreateWrapFlow(actionBody, false);
+            actionFlow.WrapContents = false;
+            actionFlow.AutoSize = true;
+            actionFlow.Controls.Add(CreatePrimaryButton(T("Back"), () => SetCurrentPage(ShowGrades)));
+            actionFlow.Controls.Add(new Label
+            {
+                Text = $"Showing grades for {semesterText}",
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                ForeColor = Color.FromArgb(90, 90, 90),
+                Margin = new Padding(12, 12, 0, 0)
+            });
 
             var filtered = DataAccess.GetStudentGrades(currentStudent.StudentId)
                                      .Where(g => $"{g.Semester} {g.Year}" == semesterText)
                                      .ToList();
 
-            Panel body = AddSection(page, "Filtered Grade History", 220);
+            Panel body = AddSection(page, T("Filtered Grade History"), 260);
             FlowLayoutPanel flow = CreateWrapFlow(body);
 
             foreach (var grade in filtered)
@@ -1148,25 +1518,28 @@ namespace StudentInfoApp3.Forms
 
         private void ShowSettings()
         {
-            lblHeaderTitle.Text = "Settings Preferences";
-            FlowLayoutPanel page = CreatePage("Settings Preferences");
+            lblHeaderTitle.Text = T("Settings Preferences");
+            FlowLayoutPanel page = CreatePage(T("Settings Preferences"));
 
-            Panel systemBody = AddSection(page, "System Preferences", 120);
+            Panel systemBody = AddSection(page, T("System Preferences"), 160);
             TableLayoutPanel systemTable = new TableLayoutPanel
             {
                 Dock = DockStyle.Top,
                 ColumnCount = 4,
+                RowCount = 2,
                 AutoSize = true
             };
             systemTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 18));
             systemTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32));
             systemTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 18));
             systemTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32));
+            systemTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            systemTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             systemBody.Controls.Add(systemTable);
 
             systemTable.Controls.Add(new Label
             {
-                Text = "Theme:",
+                Text = T("Theme:"),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 AutoSize = true,
                 Anchor = AnchorStyles.Left
@@ -1179,12 +1552,17 @@ namespace StudentInfoApp3.Forms
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             cbTheme.Items.AddRange(new object[] { "Light", "Dark", "Auto" });
-            cbTheme.SelectedIndex = 0;
+            cbTheme.SelectedItem = currentTheme;
+            cbTheme.SelectedIndexChanged += (s, e) =>
+            {
+                currentTheme = cbTheme.SelectedItem.ToString();
+                ApplyTheme(currentTheme);
+            };
             systemTable.Controls.Add(cbTheme, 1, 0);
 
             systemTable.Controls.Add(new Label
             {
-                Text = "Language:",
+                Text = T("Language:"),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 AutoSize = true,
                 Anchor = AnchorStyles.Left
@@ -1197,15 +1575,20 @@ namespace StudentInfoApp3.Forms
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             cbLanguage.Items.AddRange(new object[] { "English", "French", "Spanish" });
-            cbLanguage.SelectedIndex = 0;
+            cbLanguage.SelectedItem = currentLanguage;
+            cbLanguage.SelectedIndexChanged += (s, e) =>
+            {
+                currentLanguage = cbLanguage.SelectedItem.ToString();
+                ApplyLanguage(currentLanguage);
+            };
             systemTable.Controls.Add(cbLanguage, 3, 0);
 
-            Panel privacyBody = AddSection(page, "Privacy & Security", 200);
+            Panel privacyBody = AddSection(page, T("Privacy & Security"), 280);
             FlowLayoutPanel privacyFlow = CreateWrapFlow(privacyBody, true);
 
             privacyFlow.Controls.Add(new CheckBox
             {
-                Text = "Make profile visible to other students",
+                Text = T("Make profile visible to other students"),
                 Font = new Font("Segoe UI", 10),
                 Checked = true,
                 AutoSize = true,
@@ -1214,24 +1597,34 @@ namespace StudentInfoApp3.Forms
 
             privacyFlow.Controls.Add(new CheckBox
             {
-                Text = "Allow activity tracking for analytics",
+                Text = T("Allow activity tracking for analytics"),
                 Font = new Font("Segoe UI", 10),
                 Checked = false,
                 AutoSize = true,
                 Margin = new Padding(0, 0, 0, 10)
             });
 
-            privacyFlow.Controls.Add(CreatePrimaryButton("Change Password", () =>
+            privacyFlow.Controls.Add(new Label
             {
-                MessageBox.Show("Password change feature coming soon!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Text = T("For your security, change your password every 3 months to avoid compromise."),
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Italic),
+                ForeColor = Color.FromArgb(110, 110, 110),
+                AutoSize = true,
+                MaximumSize = new Size(520, 0),
+                Margin = new Padding(0, 0, 0, 10)
+            });
+
+            privacyFlow.Controls.Add(CreatePrimaryButton(T("Change Password"), () =>
+            {
+                ShowChangePasswordDialog();
             }));
 
-            Panel notificationBody = AddSection(page, "Notification Preferences", 245);
+            Panel notificationBody = AddSection(page, T("Notification Preferences"), 245);
             FlowLayoutPanel notificationFlow = CreateWrapFlow(notificationBody, true);
 
             notificationFlow.Controls.Add(new CheckBox
             {
-                Text = "Email notifications for important updates",
+                Text = T("Email notifications for important updates"),
                 Font = new Font("Segoe UI", 10),
                 Checked = true,
                 AutoSize = true,
@@ -1240,7 +1633,7 @@ namespace StudentInfoApp3.Forms
 
             notificationFlow.Controls.Add(new CheckBox
             {
-                Text = "Grade release notifications",
+                Text = T("Grade release notifications"),
                 Font = new Font("Segoe UI", 10),
                 Checked = true,
                 AutoSize = true,
@@ -1249,7 +1642,7 @@ namespace StudentInfoApp3.Forms
 
             notificationFlow.Controls.Add(new CheckBox
             {
-                Text = "Course enrollment and schedule changes",
+                Text = T("Course enrollment and schedule changes"),
                 Font = new Font("Segoe UI", 10),
                 Checked = true,
                 AutoSize = true,
@@ -1258,19 +1651,19 @@ namespace StudentInfoApp3.Forms
 
             notificationFlow.Controls.Add(new CheckBox
             {
-                Text = "Document approval notifications",
+                Text = T("Document approval notifications"),
                 Font = new Font("Segoe UI", 10),
                 Checked = false,
                 AutoSize = true,
                 Margin = new Padding(0, 0, 0, 10)
             });
 
-            Panel profileBody = AddSection(page, "Profile Settings", 210);
+            Panel profileBody = AddSection(page, T("Profile Settings"), 210);
             TableLayoutPanel profileTable = CreateFormTable(profileBody, 25, 75);
 
             Button btnPicture = new Button
             {
-                Text = "Change Picture",
+                Text = T("Change Picture"),
                 Width = 150,
                 Height = 34,
                 BackColor = Color.FromArgb(33, 150, 243),
@@ -1281,7 +1674,7 @@ namespace StudentInfoApp3.Forms
             btnPicture.FlatAppearance.BorderSize = 0;
             btnPicture.Click += (s, e) => MessageBox.Show("Profile picture upload feature coming soon!");
 
-            AddFormRow(profileTable, "Profile Picture:", btnPicture);
+            AddFormRow(profileTable, T("Profile Picture:"), btnPicture);
 
             TextBox txtDisplayName = new TextBox
             {
@@ -1289,25 +1682,179 @@ namespace StudentInfoApp3.Forms
                 Width = 420,
                 Font = new Font("Segoe UI", 10)
             };
-            AddFormRow(profileTable, "Display Name:", txtDisplayName);
+            AddFormRow(profileTable, T("Display Name:"), txtDisplayName);
 
             TextBox txtBio = new TextBox
             {
-                Text = "Computer Science student passionate about technology and innovation.",
+                Text = T("Computer Science student passionate about technology and innovation."),
                 Width = 420,
                 Height = 70,
                 Multiline = true,
                 Font = new Font("Segoe UI", 10)
             };
-            AddFormRow(profileTable, "Bio:", txtBio);
+            AddFormRow(profileTable, T("Bio:"), txtBio);
 
-            Panel actionBody = AddSection(page, "Actions", 150);
+            Panel actionBody = AddSection(page, T("Actions"), 150);
             FlowLayoutPanel actionFlow = CreateWrapFlow(actionBody);
-            actionFlow.Controls.Add(CreatePrimaryButton("Save All Settings", () =>
+            actionFlow.Controls.Add(CreatePrimaryButton(T("Save All Settings"), () =>
             {
-                MessageBox.Show("Settings saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(T("Settings saved successfully!"), T("Success"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }));
         }
+
+        private void ShowChangePasswordDialog()
+        {
+            Form changePasswordForm = new Form
+            {
+                Text = "Change Password",
+                Width = 420,
+                Height = 350,
+                StartPosition = FormStartPosition.CenterParent,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MaximizeBox = false,
+                MinimizeBox = false
+            };
+
+            Label lblOld = new Label
+            {
+                Text = "Current Password:",
+                Location = new Point(20, 20),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            changePasswordForm.Controls.Add(lblOld);
+
+            TextBox txtOldPassword = new TextBox
+            {
+                Location = new Point(20, 50),
+                Width = 360,
+                PasswordChar = '*',
+                Font = new Font("Segoe UI", 10)
+            };
+            changePasswordForm.Controls.Add(txtOldPassword);
+
+            Label lblNew = new Label
+            {
+                Text = "New Password:",
+                Location = new Point(20, 90),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            changePasswordForm.Controls.Add(lblNew);
+
+            TextBox txtNewPassword = new TextBox
+            {
+                Location = new Point(20, 120),
+                Width = 360,
+                PasswordChar = '*',
+                Font = new Font("Segoe UI", 10)
+            };
+            changePasswordForm.Controls.Add(txtNewPassword);
+
+            Label lblConfirm = new Label
+            {
+                Text = "Confirm New Password:",
+                Location = new Point(20, 160),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            changePasswordForm.Controls.Add(lblConfirm);
+
+            TextBox txtConfirmPassword = new TextBox
+            {
+                Location = new Point(20, 190),
+                Width = 360,
+                PasswordChar = '*',
+                Font = new Font("Segoe UI", 10)
+            };
+            changePasswordForm.Controls.Add(txtConfirmPassword);
+
+            Button btnChange = new Button
+            {
+                Text = "Change Password",
+                Location = new Point(140, 240),
+                Width = 130,
+                Height = 34,
+                BackColor = Color.FromArgb(76, 175, 80),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            btnChange.FlatAppearance.BorderSize = 0;
+            btnChange.Click += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(txtOldPassword.Text))
+                {
+                    MessageBox.Show("Please enter your current password.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(txtNewPassword.Text) || txtNewPassword.Text.Length < 6)
+                {
+                    MessageBox.Show("New password must be at least 6 characters long.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (txtNewPassword.Text != txtConfirmPassword.Text)
+                {
+                    MessageBox.Show("New passwords do not match.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (DataAccess.ChangePassword(currentUsername, txtOldPassword.Text, txtNewPassword.Text))
+                {
+                    MessageBox.Show("Password changed successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    changePasswordForm.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Current password is incorrect.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+            changePasswordForm.Controls.Add(btnChange);
+
+            changePasswordForm.ShowDialog();
+        }
+
+        private void ApplyTheme(string theme)
+        {
+            Color bgColor, headerColor, sidebarColor, textColor;
+
+            switch (theme)
+            {
+                case "Dark":
+                    bgColor = Color.FromArgb(30, 30, 30);
+                    headerColor = Color.FromArgb(20, 20, 20);
+                    sidebarColor = Color.FromArgb(15, 15, 15);
+                    textColor = Color.White;
+                    break;
+                case "Auto":
+                    bgColor = Color.FromArgb(240, 242, 245);
+                    headerColor = Color.FromArgb(33, 150, 243);
+                    sidebarColor = Color.FromArgb(24, 55, 120);
+                    textColor = Color.Black;
+                    break;
+                default:
+                    bgColor = Color.FromArgb(240, 242, 245);
+                    headerColor = Color.FromArgb(33, 150, 243);
+                    sidebarColor = Color.FromArgb(24, 55, 120);
+                    textColor = Color.Black;
+                    break;
+            }
+
+            contentPanel.BackColor = bgColor;
+            SetCurrentPage(currentPageAction);
+        }
+
+        private void ApplyLanguage(string language)
+        {
+            currentLanguage = language;
+            Text = T("University of Mauritius - Campus Portal");
+            UpdateNavigationLabels();
+            MessageBox.Show(T("Language changed to {0}. Application restart recommended for full effect.", language), T("Language Changed"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            SetCurrentPage(currentPageAction);
+        }
+
 
         private double GradeToPoint(string grade)
         {
